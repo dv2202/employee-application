@@ -3,6 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { useNavigate } from 'react-router-dom';
 
 const CreateEmployee = () => {
   const [empId, setEmpId] = useState('');
@@ -11,7 +12,7 @@ const CreateEmployee = () => {
   const [phoneNumber, setPhone] = useState('');
   const [role, setRole] = useState('');
   const [address, setAddress] = useState('');
-
+  const navigate = useNavigate ();
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -44,7 +45,7 @@ const CreateEmployee = () => {
       }
 
       const data = await response.json();
-      toast.success('Employee created successfully!');
+      toast.success('Employee created successfully! Navigating to home page');
       
       // Clear form
       setEmpId('');
@@ -53,6 +54,9 @@ const CreateEmployee = () => {
       setRole('');
       setAddress('');
       setPhone('');
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     } catch (error) {
       toast.error('Error creating employee');
       console.error('Error:', error);

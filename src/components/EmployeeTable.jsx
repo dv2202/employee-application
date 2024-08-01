@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import TopContainer from "./TopContainer";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
@@ -21,6 +21,7 @@ const EmployeeTable = () => {
   const [refreshData, setRefreshData] = useState(false);
   const projectId = '66aa72328f90e5d0511a0293';
   const environmentId = '66aa72328f90e5d0511a0294';
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -146,7 +147,7 @@ const EmployeeTable = () => {
     <TopContainer onSearchChange={handleSearchChange} toShow={true} />
       {sortedRecords.length === 0 ? (
         <>
-          <div className="items-center justify-center flex w-[100vw] h-[100vh] text-[20px] text-gray-600 text-center ">
+          <div className="items-center justify-center flex mt-[25%] text-[20px] text-gray-600 text-center ">
             <div className="border rounded-md border-gray-400 pt-2 pb-2 pr-4 pl-4">No Employees in the system</div>
           </div>
         </>
