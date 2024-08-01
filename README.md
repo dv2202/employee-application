@@ -21,16 +21,22 @@ https://employee-application-cosmo.netlify.app/
 
 1. Clone the Repository
 
-### `git clone https://github.com/dv2202/employee-application.git`
+```bash 
+git clone https://github.com/dv2202/employee-application.git
+```
 
 2. Navigate to the Project Directory
 
 3. Install Dependencies
 bash
-### `npm install`
+```bash
+ `npm install`
+```
 
 
 4.Start the Application
 
-### `npm run dev`
+```bash 
+`npm run dev`
+```
 
