@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Link } from "react-router-dom";
 import TopContainer from "./TopContainer";
 import { MdDeleteOutline } from "react-icons/md";
 import { FaRegEdit } from "react-icons/fa";
 import "./CustomToastStyles.css";
-import { data } from "../data";
 import EditEmployeeModal from "./EditEmployeeModal"; // Import the modal component
 
 const EmployeeTable = () => {
@@ -18,21 +18,92 @@ const EmployeeTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-
+  const [refreshData, setRefreshData] = useState(false);
+  const projectId = '66aa72328f90e5d0511a0293'; 
+  const environmentId = '66aa72328f90e5d0511a0294'
   const handleSearchChange = (value) => {
     setSearchTerm(value);
   };
 
+
+  
   useEffect(() => {
-    const filterData = data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setRecord(filterData);
-    setPages(Math.ceil(filterData.length / pageSize));
+    const fetchEmployees = async () => {
+      const projectId = '66aa72328f90e5d0511a0293'; // Replace with your actual projectId
+      const environmentId = '66aa72328f90e5d0511a0294'; // Replace with your actual environmentId
+      const limit = pageSize; // Number of records per page
+      const offset = 0 // Calculate offset based on current page
+
+      try {
+        const response = await fetch(
+          `https://free-ap-south-1.cosmocloud.io/development/api/employee?limit=${limit}&offset=${offset}`,
+          {
+            method: 'GET',
+            headers: {
+              'projectId': projectId,
+              'environmentId': environmentId,
+              'Content-Type': 'application/json', 
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch employees');
+        }
+
+        const data = await response.json();
+        setRecord(data.data);
+        debugger
+        setPages(Math.ceil(data.page.total / pageSize));
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+
+    fetchEmployees();
+  }, [refreshData]);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      const projectId = '66aa72328f90e5d0511a0293'; // Replace with your actual projectId
+      const environmentId = '66aa72328f90e5d0511a0294'; // Replace with your actual environmentId
+      const limit = pageSize; // Number of records per page
+      const offset = 0 // Calculate offset based on current page
+
+      try {
+        const response = await fetch(
+          `https://free-ap-south-1.cosmocloud.io/development/api/employee?limit=${limit}&offset=${offset}`,
+          {
+            method: 'GET',
+            headers: {
+              'projectId': projectId,
+              'environmentId': environmentId,
+              'Content-Type': 'application/json', 
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch employees');
+        }
+
+        const data = await response.json();
+        const filterData = data.filter(
+            (item) =>
+              item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              item.role.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+    
+        setRecord(filterData.data);
+        setPages(Math.ceil(filterData.length / pageSize));
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+    
+    fetchEmployees();
   }, [searchTerm]);
+
 
   const pageNumber = Array.from({ length: pages }, (_, index) => index + 1);
 
@@ -51,18 +122,31 @@ const EmployeeTable = () => {
     }
   };
 
-  const handleDeleteRows = (e) => {
-    if (selectRows.length > 0) {
-      e.preventDefault();
-      const updateData = record.filter((row) => !selectRows.includes(row.id));
-      setRecord(updateData);
-      setSelectRows([]);
-      setSelectAll(false);
-      toast.success("Selected rows deleted successfully!");
-    } else {
-      toast.error("Select at least 1 row");
+  const handleDelete = async (id) => {
+    debugger
+    try {
+      const response = await fetch(`https://free-ap-south-1.cosmocloud.io/development/api/employee/${id}`,{
+        method: 'DELETE',
+        headers: {
+          'projectId': projectId,
+          'environmentId': environmentId,
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({}),
+      })
+      if(response.ok){
+        const data = await response.json();
+        toast.success("Employee deleted successfully!");
+        setRefreshData(prev => !prev);
+      }
+
+    } catch (error) {
+      console.error("Error deleting the employee:", error);
+      toast.error("An error occurred while deleting the employee.");
     }
   };
+  
+  
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -79,113 +163,137 @@ const EmployeeTable = () => {
     setSelectedEmployee(null);
   };
 
-  const handleSave = (updatedEmployee) => {
-    const updatedRecords = record.map((item) =>
-      item.id === updatedEmployee.id ? updatedEmployee : item
-    );
-    setRecord(updatedRecords);
-    handleModalClose();
-    toast.success("Employee details updated successfully!");
+  const handleSave = async (updatedEmployee) => {
+    const projectId = '66aa72328f90e5d0511a0293'; 
+    const environmentId = '66aa72328f90e5d0511a0294'
+    try {
+      const response = await fetch(`https://free-ap-south-1.cosmocloud.io/development/api/employee/${updatedEmployee._id}`,{
+        method: 'PATCH',
+        headers: {
+          'projectId': projectId,
+          'environmentId': environmentId,
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify({
+          emp_id: updatedEmployee.emp_id,
+          name: updatedEmployee.name,
+          email: updatedEmployee.email,
+          role: updatedEmployee.role,
+          address: updatedEmployee.address,
+          phoneNumber:updatedEmployee.phoneNumber,
+        }),
+      })
+      if(response.ok){
+        const data = await response.json();
+        toast.success("Employee details updated successfully!");
+        handleModalClose();
+        setRefreshData(prev => !prev);
+      }
+      
+    } catch (error) {
+      console.error("Error updating the employee:", error);
+      toast.error("An error occurred while updating the employee.");
+    }
   };
 
-  return (
-    <div>
-      <TopContainer onDelete={handleDeleteRows} onSearchChange={handleSearchChange} />
-      <ToastContainer autoClose={1500} />
-      <table className="w-4/5 mx-auto ">
-        <thead className="border">
-          <tr>
-            <th>
-              <div className="flex justify-start items-center pl-5 pt-4 pb-4">
-                <input
-                  type="checkbox"
-                  name="allselect"
-                  checked={selectall}
-                  onChange={() => {
-                    const allOnPage = record
-                      .slice(
-                        (currentPage - 1) * pageSize,
-                        currentPage * pageSize
-                      )
-                      .map((row) => row.id);
-                    const areAllSelected =
-                      selectRows.length === allOnPage.length;
+  const sortedRecords = [...record].sort((a, b) => a.emp_id - b.emp_id);
 
-                    setSelectRows(areAllSelected ? [] : allOnPage);
-                    setSelectAll(!areAllSelected);
-                  }}
-                  className="item-left"
-                />
-              </div>
-            </th>
-            <th className="text-left text-gray-600 font-medium">Employee ID</th>
-            <th className="text-left text-gray-600 font-medium">Name</th>
-            <th className="text-left text-gray-600 font-medium">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {record
-            .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-            .map((list, index) => (
-              <tr key={index} className="border hover:bg-gray-100">
-                <td className="p-5">
-                  <input
-                    type="checkbox"
-                    checked={selectRows.includes(list.id)}
-                    onChange={() => handleCheckBox(list.id)}
-                  />
-                </td>
-                <td className="font-medium">{list.employeeId}</td>
-                <td className="font-medium">{list.name}</td>
-                <td className="item-center text-center flex gap-2 my-auto pt-3 pb-3">
-                  <div
-                    onClick={() => handleEdit(list)}
-                    className="flex gap-2 items-center justify-center cursor-pointer w-10 h-10 border rounded-lg"
-                  >
-                    <FaRegEdit className="text-center text-black" />
-                  </div>
-                  <div
-                    onClick={handleDeleteRows}
-                    className="flex gap-2 items-center justify-center cursor-pointer w-10 h-10 border rounded-lg"
-                  >
-                    <MdDeleteOutline className="text-center text-red-600" />
-                  </div>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-      <div className="flex justify-between items-center w-4/5 mt-3 mx-auto mb-3">
-        <div className="font-medium text-sm items-center text-gray-500 ">{`${selectRows.length} of ${record.length} row(s) selected`}</div>
-        <div className="flex flex-row items-center justify-end">
-          <div className="font-medium text-sm items-center text-gray-500 mr-3">
-            Page {currentPage} of {pages}
-          </div>
-          <div className=" justify-center flex items-center">
-            {pageNumber.map((page) => (
-              <div key={page}>
-                <div
-                  className={`cursor-pointer flex mx-1 w-7 h-7 justify-center items-center  text-center rounded-md border-2 ${
-                    page === currentPage
-                      ? "text-blue-500 font-bold text-sm"
-                      : "text-sm"
-                  }`}
-                  onClick={() => handlePageChange(page)}
-                >
-                  {page}
+  return (
+    <>
+    {
+        sortedRecords.length === 0 ? (
+            <>            
+            <TopContainer
+            onSearchChange={handleSearchChange}
+            toShow={false}
+          />
+            <div className="items-center justify-center flex w-[100vw] h-[100vh] text-[20px] text-gray-600 text-center "> 
+            <div className="border rounded-md border-gray-400 pt-2 pb-2 pr-4 pl-4">No Employees in the system</div>
+            </div></>
+        )
+        :
+        (
+        <div className="w-4/5 mx-auto">
+            <TopContainer
+              onSearchChange={handleSearchChange}
+              toShow={true}
+            />
+            <ToastContainer autoClose={1500} />
+            <table className="w-4/5 mx-auto ">
+              <thead className="border">
+                <tr className="items-center ">
+                  <th className="text-center text-gray-600 font-medium p-1">Employee ID</th>
+                  <th className="text-center text-gray-600 font-medium p-1">Name</th>
+                  <th className="text-center text-gray-600 font-medium p-1">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((list, index) => (
+                    <tr
+                      key={index}
+                      className="border hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        window.location.href = `/employee/${list._id}`;
+                      }}
+                    >
+                      <td className="font-medium text-center">{list.emp_id}</td>
+                      <td className="font-medium text-center">{list.name}</td>
+                      <td className="item-center text-center justify-center flex gap-2 my-auto pt-3 pb-3">
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleEdit(list);
+                          }}
+                          className="flex gap-2 items-center justify-center cursor-pointer w-10 h-10 border rounded-lg"
+                        >
+                          <FaRegEdit className="text-center text-black" />
+                        </div>
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDelete(list._id)
+                          }}
+                          className="flex gap-2 items-center justify-center cursor-pointer w-10 h-10 border rounded-lg"
+                        >
+                          <MdDeleteOutline className="text-center text-red-600" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            <div className="flex justify-between items-center w-4/5 mt-3 mx-auto mb-3">
+              <div className="flex flex-row items-center w-[100%] justify-center">
+                <div className="font-medium text-sm items-center text-gray-500 mr-3">
+                  Page {currentPage} of {pages}
+                </div>
+                <div className=" justify-center flex items-center">
+                  {pageNumber.map((page) => (
+                    <div key={page}>
+                      <div
+                        className={`cursor-pointer flex mx-1 w-7 h-7 justify-center items-center  text-center rounded-md border-2 ${
+                          page === currentPage
+                            ? "text-blue-500 font-bold text-sm"
+                            : "text-sm"
+                        }`}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <EditEmployeeModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        employee={selectedEmployee}
-        onSave={handleSave}
-      />
-    </div>
+            </div>
+            <EditEmployeeModal
+              isOpen={isModalOpen}
+              onClose={handleModalClose}
+              employee={selectedEmployee}
+              onSave={handleSave}
+            />
+        </div>)
+    }
+    </>
   );
 };
 

@@ -1,14 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import EmployeeTable from './components/EmployeeTable'
-function App() {
-  const [count, setCount] = useState(0)
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import EmployeeTable from "./components/EmployeeTable";
+import EmployeeDetails from "./components/EmployeeDetails";
+import CreateEmployee from "./components/CreateEmployee";
 
+const App = () => {
   return (
-    <>
-      <EmployeeTable/>
-    </>
-  )
-}
+    <BrowserRouter>
+      <Routes>
+        <Route exact path="/" element={<EmployeeTable />} />
+        <Route path="/employee/:id" element={<EmployeeDetails />} />
+        <Route path="/create" element={<CreateEmployee />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
-export default App
+export default App;

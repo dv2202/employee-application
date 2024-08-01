@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 const EditEmployeeModal = ({ isOpen, onClose, employee, onSave }) => {
   const [formData, setFormData] = useState({
     id: '',
@@ -7,6 +8,8 @@ const EditEmployeeModal = ({ isOpen, onClose, employee, onSave }) => {
     email: '',
     role: '',
     employeeId: '',
+    address: '',
+    phoneNumber:'',
   });
 
   useEffect(() => {
@@ -14,7 +17,7 @@ const EditEmployeeModal = ({ isOpen, onClose, employee, onSave }) => {
       setFormData(employee);
     }
   }, [employee]);
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -32,6 +35,16 @@ const EditEmployeeModal = ({ isOpen, onClose, employee, onSave }) => {
       <div className="bg-white p-5 rounded-lg shadow-lg w-1/3">
         <h2 className="text-xl mb-4">Edit Employee</h2>
         <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+            <label className="block text-gray-700">Employee ID</label>
+            <input
+              type="text"
+              name="employeeId"
+              value={formData.emp_id}
+              onChange={handleChange}
+              className="w-full border-2 border-gray-300 p-2 rounded-lg"
+            />
+          </div>
           <div className="mb-4">
             <label className="block text-gray-700">Name</label>
             <input
@@ -63,13 +76,13 @@ const EditEmployeeModal = ({ isOpen, onClose, employee, onSave }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Employee ID</label>
-            <input
-              type="text"
-              name="employeeId"
-              value={formData.employeeId}
+            <label className="block text-gray-700">Contact Number</label>
+            <PhoneInput
+              country={'us'}
+              value={formData.phoneNumber}
               onChange={handleChange}
-              className="w-full border-2 border-gray-300 p-2 rounded-lg"
+              buttonClass="border-2 border-gray-300"
+              inputStyle={{width: '100%', height: '50px',border: '2px solid #d1d5db',borderRadius: '5px',padding: '0 50px',fontSize: '16px',color: '#000',}}
             />
           </div>
           <div className="flex justify-end">
