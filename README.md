@@ -30,13 +30,13 @@ git clone https://github.com/dv2202/employee-application.git
 3. Install Dependencies
 bash
 ```bash
- `npm install`
+ npm install
 ```
 
 
 4.Start the Application
 
 ```bash 
-`npm run dev`
+npm run dev
 ```
 
