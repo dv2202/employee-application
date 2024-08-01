@@ -1,6 +1,9 @@
-# Employee Data CRUD Application
+# Employee Data CRUD Application 
 
 This is a simple Employee Data CRUD (Create, Read, Update, Delete) application that utilizes the Cosmocloud API (Backend as a Service) to perform various operations. The application allows users to create, view, update, and delete employee records.
+# Deployed Link 
+```bash
+https://employee-application-cosmo.netlify.app/
 
 ## Features
 
